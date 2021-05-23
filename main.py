@@ -6,7 +6,6 @@ from ezdxf.addons.drawing.matplotlib import MatplotlibBackend
 import glob
 import re
 
-NameFile = 'new_name.dxf'
 
 
 def name_file(method_fixing, type_template, size_a, size_b, dist, ind_diam, ind_num):
@@ -15,19 +14,37 @@ def name_file(method_fixing, type_template, size_a, size_b, dist, ind_diam, ind_
     #   или для каждого типа своя функция
     if size_a < size_b:
         size_a, size_b = size_b, size_a
-    NameFile = str(f'{method_fixing} К{ind_diam}.{type_template}.{size_a}_{size_b}.{dist}')
+    NameFile = str(f'{method_fixing} К{ind_diam}.{type_template}.{size_a}_{size_b}.{dist}.dxf')
     return NameFile
 
 
-def create_dfx(NameFile, dist=60, rad_ind=35 / 2, n_ind=10):
+def check_file(NameFile):
+    """Проверка наличия файла в БД"""
+    # TODO: допилить проверку наличия в БД
+    if NameFile == 'проверка в БД':
+        return f'http://link{NameFile}.ru'
+    # Иначе:
+    return None
+
+
+def write_file(NameFile):
+    """Запись файла в БД"""
+    # TODO: допилить запись в БД
+
+
+def create_dfx(NameFile, dist, ind_diam, ind_num):
     """
     Создание чертежа трафарета в формате dxf по заданным параметрам:
     :param NameFile: Имя файла для сохранения
     :param dist: Расстояние между индикаторами
-    :param rad_ind: Радиус индикатора
-    :param n_ind: Количество индикаторов
-    :return: None
+    :param ind_diam: Диаметр индикатора
+    :param ind_num: Количество индикаторов
+    :return: link
     """
+
+    link = check_file(NameFile)
+    if link:
+        return link
 
     # создаем документ:
     doc = ezdxf.new()
@@ -35,11 +52,11 @@ def create_dfx(NameFile, dist=60, rad_ind=35 / 2, n_ind=10):
     msp = doc.modelspace()
     # psp = doc.layout('list1')
 
-    for i in range(n_ind):
-        for j in range(n_ind):
-            msp.add_circle((i * dist, j * dist), radius=rad_ind)
+    for i in range(ind_num):
+        for j in range(ind_num):
+            msp.add_circle((i * dist, j * dist), radius=ind_diam/2)
     p1 = (0, 0)
-    p2 = ((n_ind - 1) * dist, 0)
+    p2 = ((ind_num - 1) * dist, 0)
 
     dim = msp.add_aligned_dim(p1=p1, p2=p2, distance=-100, override={'dimtxt': 20})
     dim.render()
@@ -78,6 +95,15 @@ class DXF2IMG(object):
 
 
 if __name__ == '__main__':
-    create_dfx(NameFile)
+    method_fixing = 'Приклеиваиние'
+    type_template = 'Л'
+    size_a = 500
+    size_b = 500
+    dist = 60
+    ind_diam = 35
+    ind_num = 8
+
+    NameFile = name_file(method_fixing, type_template, size_a, size_b, dist, ind_diam, ind_num)
+    create_dfx(NameFile, dist, ind_diam, ind_num)
     first = DXF2IMG()
     first.convert_dxf2img([NameFile], img_format='.pdf')
