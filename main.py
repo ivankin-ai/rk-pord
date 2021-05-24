@@ -6,6 +6,7 @@ import os.path
 # import wx
 import glob
 import re
+import config
 
 
 def name_file(atr: dict):
@@ -97,15 +98,7 @@ class DXF2IMG(object):
             fig.savefig(f'Files/png/{name_file}.png', dpi=img_res)
 
 if __name__ == '__main__':
-    atr = {
-        'method_fixing': 'Приклеиваиние',
-        'type_template': 'Ш',
-        'size_a': 900,
-        'size_b': 500,
-        'dist': 60,
-        'ind_diam': 35,
-        'ind_num': 8,
-    }
+    atr = config.atr
 
     name = name_file(atr)
     if check_file(name):
