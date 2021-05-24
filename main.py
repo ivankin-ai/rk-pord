@@ -2,49 +2,38 @@ import matplotlib.pyplot as plt
 import ezdxf
 from ezdxf.addons.drawing import RenderContext, Frontend
 from ezdxf.addons.drawing.matplotlib import MatplotlibBackend
+import os.path
 # import wx
 import glob
 import re
 
 
-
-def name_file(method_fixing, type_template, size_a, size_b, dist, ind_diam, ind_num):
-    # TODO: Тип трафарета:
-    #   Необходимо понять, будет это одна функция для всех
-    #   или для каждого типа своя функция
-    if size_a < size_b:
-        size_a, size_b = size_b, size_a
-    NameFile = str(f'{method_fixing} К{ind_diam}.{type_template}.{size_a}_{size_b}.{dist}.dxf')
-    return NameFile
+def name_file(atr: dict):
+    """Из входящих параметров формирует имя файла"""
+    if atr['size_a'] < atr['size_b']:
+        atr['size_a'], atr['size_b'] = atr['size_b'], atr['size_a']
+    name = str(f'{atr["method_fixing"]} '
+               f'К{atr["ind_diam"]}.'
+               f'{atr["type_template"]}.'
+               f'{atr["size_a"]}_{atr["size_b"]}.'
+               f'{atr["dist"]}')
+    return name
 
 
 def check_file(NameFile):
-    """Проверка наличия файла в БД"""
-    # TODO: допилить проверку наличия в БД
-    if NameFile == 'проверка в БД':
-        return f'http://link{NameFile}.ru'
-    # Иначе:
-    return None
+    """Проверка наличия файла"""
+    if os.path.isfile(f'Files/DXF/{NameFile}.dxf'):
+        return True
+    else:
+        return False
 
 
-def write_file(NameFile):
-    """Запись файла в БД"""
-    # TODO: допилить запись в БД
-
-
-def create_dfx(NameFile, dist, ind_diam, ind_num):
+def create_dxf(atr: dict):
     """
-    Создание чертежа трафарета в формате dxf по заданным параметрам:
-    :param NameFile: Имя файла для сохранения
-    :param dist: Расстояние между индикаторами
-    :param ind_diam: Диаметр индикатора
-    :param ind_num: Количество индикаторов
-    :return: link
+    Создание чертежа трафарета в формате dxf по заданным параметрам
     """
 
-    link = check_file(NameFile)
-    if link:
-        return link
+    name = name_file(atr)
 
     # создаем документ:
     doc = ezdxf.new()
@@ -52,15 +41,27 @@ def create_dfx(NameFile, dist, ind_diam, ind_num):
     msp = doc.modelspace()
     # psp = doc.layout('list1')
 
-    for i in range(ind_num):
-        for j in range(ind_num):
-            msp.add_circle((i * dist, j * dist), radius=ind_diam/2)
-    p1 = (0, 0)
-    p2 = ((ind_num - 1) * dist, 0)
+    if atr['type_template'] == 'Л':
+        count_a = atr['size_a'] // atr['dist'] + 1
+        count_b = atr['size_b'] // atr['dist'] + 1
+        for i in range(count_a):
+            for j in range(count_b):
+                msp.add_circle((i * atr['dist'], j * atr['dist']), radius=atr['ind_diam'] / 2)
+        # p1 = (0, 0)
+        # p2 = ((atr['ind_num'] - 1) * atr['dist'], 0)
+        # dim = msp.add_aligned_dim(p1=p1, p2=p2, distance=-100, override={'dimtxt': 20})  # отрисовка размерной линии
+        # dim.render()
+        doc.saveas('Files/DXF/' + name+'.dxf')
 
-    dim = msp.add_aligned_dim(p1=p1, p2=p2, distance=-100, override={'dimtxt': 20})
-    dim.render()
-    doc.saveas(NameFile)
+    elif atr['type_template'] == 'Ш':
+        a = atr['dist'] / 2**0.5
+        count_a = int((atr['size_a']-20) // a + 1)
+        count_b = int((atr['size_b']-20) // a + 1)
+        for i in range(count_a):
+            for j in range(count_b):
+                if (i + j) % 2 == 0:
+                    msp.add_circle((a*i, a*j), radius=atr['ind_diam'] / 2)
+        doc.saveas('Files/DXF/' + name+'.dxf')
 
 
 class DXF2IMG(object):
@@ -68,42 +69,49 @@ class DXF2IMG(object):
     default_img_res = 300
 
     def convert_dxf2img(self,
-                        names,
+                        path,
+                        name_file,
                         img_format=default_img_format,
                         img_res=default_img_res):
-        for name in names:
-            doc = ezdxf.readfile(name)  # Открываем файл .dxf
-            msp = doc.modelspace()  # получаем
-            # Recommended: audit & repair DXF document before rendering
-            auditor = doc.audit()
-            # The auditor.errors attribute stores severe errors,
-            # which *may* raise exceptions when rendering.
-            if len(auditor.errors) != 0:
-                raise Exception("The DXF document is damaged and can't be converted!")
-            else:
-                fig = plt.figure()
-                ax = fig.add_axes([0, 0, 1, 1])
-                ctx = RenderContext(doc)
-                ctx.set_current_layout(msp)
-                ctx.current_layout.set_colors(bg='#FFFFFF')
-                out = MatplotlibBackend(ax)
-                Frontend(ctx, out).draw_layout(msp, finalize=True)
-
-                img_name = re.findall("(\S+)\.", name)  # select the image name that is the same as the dxf file name
-                first_param = ''.join(img_name) + img_format  # concatenate list and string
-                fig.savefig(first_param, dpi=img_res)
-
+        name = path + name_file + '.dxf'
+        doc = ezdxf.readfile(name)  # Открываем файл .dxf
+        msp = doc.modelspace()  # получаем
+        # Recommended: audit & repair DXF document before rendering
+        auditor = doc.audit()
+        # The auditor.errors attribute stores severe errors,
+        # which *may* raise exceptions when rendering.
+        if len(auditor.errors) != 0:
+            raise Exception("The DXF document is damaged and can't be converted!")
+        else:
+            fig = plt.figure()
+            ax = fig.add_axes([0, 0, 1, 1])
+            ctx = RenderContext(doc)
+            ctx.set_current_layout(msp)
+            ctx.current_layout.set_colors(bg='#FFFFFF')
+            out = MatplotlibBackend(ax)
+            Frontend(ctx, out).draw_layout(msp, finalize=True)
+            # img_name = re.findall("(\S+)\.", name)  # select the image name that is the same as the dxf file name
+            # first_param = f'Files/{img_format[1:]}/' + ''.join(img_name) + img_format  # concatenate list and string
+            # fig.savefig(first_param, dpi=img_res)
+            fig.savefig(f'Files/pdf/{name_file}.pdf', dpi=img_res)
+            fig.savefig(f'Files/png/{name_file}.png', dpi=img_res)
 
 if __name__ == '__main__':
-    method_fixing = 'Приклеиваиние'
-    type_template = 'Л'
-    size_a = 500
-    size_b = 500
-    dist = 60
-    ind_diam = 35
-    ind_num = 8
+    atr = {
+        'method_fixing': 'Приклеиваиние',
+        'type_template': 'Ш',
+        'size_a': 900,
+        'size_b': 500,
+        'dist': 60,
+        'ind_diam': 35,
+        'ind_num': 8,
+    }
 
-    NameFile = name_file(method_fixing, type_template, size_a, size_b, dist, ind_diam, ind_num)
-    create_dfx(NameFile, dist, ind_diam, ind_num)
-    first = DXF2IMG()
-    first.convert_dxf2img([NameFile], img_format='.pdf')
+    name = name_file(atr)
+    if check_file(name):
+        print('Такой уже есть')
+    else:
+        create_dxf(atr)
+        file = DXF2IMG()
+        file.convert_dxf2img('Files/DXF/', name)
+
