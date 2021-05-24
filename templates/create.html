@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>трафарет</title>
+</head>
+<body>
+    <form action="" method="post">
+
+    {% for atr in atr_list %}
+        <p>
+            <label for="{{atr}}">{{atr}}</label>
+            <input type="text" name="{{atr}}">
+        </p>
+    {% endfor %}
+	<p>
+	    <input type="submit">
+	</p>
+    </form>
+
+</body>
+</html>
