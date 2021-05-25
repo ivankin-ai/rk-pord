@@ -77,10 +77,7 @@ class DXF2IMG(object):
         name = path + name_file + '.dxf'
         doc = ezdxf.readfile(name)  # Открываем файл .dxf
         msp = doc.modelspace()  # получаем
-        # Recommended: audit & repair DXF document before rendering
         auditor = doc.audit()
-        # The auditor.errors attribute stores severe errors,
-        # which *may* raise exceptions when rendering.
         if len(auditor.errors) != 0:
             raise Exception("The DXF document is damaged and can't be converted!")
         else:
@@ -89,11 +86,8 @@ class DXF2IMG(object):
             ctx = RenderContext(doc)
             ctx.set_current_layout(msp)
             ctx.current_layout.set_colors(bg='#FFFFFF')
-            out = MatplotlibBackend(ax)
+            out = MatplotlibBackend(ax, params={"lineweight_scaling": 0})
             Frontend(ctx, out).draw_layout(msp, finalize=True)
-            # img_name = re.findall("(\S+)\.", name)  # select the image name that is the same as the dxf file name
-            # first_param = f'Files/{img_format[1:]}/' + ''.join(img_name) + img_format  # concatenate list and string
-            # fig.savefig(first_param, dpi=img_res)
             fig.savefig(f'Files/pdf/{name_file}.pdf', dpi=img_res)
             fig.savefig(f'Files/png/{name_file}.png', dpi=img_res)
 

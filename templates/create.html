@@ -7,14 +7,14 @@
 <body>
     <form action="" method="post">
 
-    {% for atr in atr_list %}
+    {% for atr in atr_dict %}
         <p>
             <label for="{{atr}}">{{atr}}</label>
-            <input type="text" name="{{atr}}">
+            <input type="{{atr_dict[atr]}}" name="{{atr}}">
         </p>
     {% endfor %}
 	<p>
-	    <input type="submit">
+	    <input type="submit" formtarget="_blank">
 	</p>
     </form>
 

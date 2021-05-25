@@ -7,13 +7,13 @@ atr = {
         'ind_diam': 35,
         'ind_num': 8,
     }
-atr_list = [
-        'method_fixing',
-        'type_template',
-        'size_a',
-        'size_b',
-        'dist',
-        'ind_diam',
-        'ind_num',
-]
+atr_dict = {
+        'method_fixing': 'text',
+        'type_template': 'text',
+        'size_a': 'number',
+        'size_b': 'number',
+        'dist': 'number',
+        'ind_diam': 'number',
+        'ind_num': 'number',
+    }
 SECRET_KEY = 'YouWillNeverGuessMySecretKey'
