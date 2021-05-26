@@ -5,15 +5,15 @@ import config
 import main
 
 app = Flask(__name__)
-
-
-# @app.route('/', methods=['GET', 'POST'])
-# def hello() -> str:
-#     atr = config.atr
-#     return send_file('files/pdf/' + main.name_file(atr) + '.pdf')
+app.secret_key = config.SECRET_KEY
 
 
 @app.route("/", methods=['POST', 'GET'])
+def index():
+    return render_template('index.html')
+
+
+@app.route("/test", methods=['POST', 'GET'])
 def input_atr():
     atr_dict = config.atr_dict
     if request.method == "POST":
@@ -35,15 +35,36 @@ def input_atr():
 
         name = main.name_file(atr)
         if main.check_file(name):
-            return send_file('files/pdf/' + main.name_file(atr) + '.pdf')
+            return send_file('files/pdf/' + main.name_file(atr) + '.pdf', as_attachment=True)
         main.create_dxf(atr)
         file = main.DXF2IMG()
         file.convert_dxf2img('Files/DXF/', name)
-        return send_file('files/pdf/' + main.name_file(atr) + '.pdf')
+        return send_file('files/pdf/' + main.name_file(atr) + '.pdf', as_attachment=True)
     return render_template('create.html', atr_dict=atr_dict)
 
 
-app.secret_key = config.SECRET_KEY
+# @app.route("/create", method=['POST', 'GET'])
+# def select_type():
+#     type = {
+#         'Конус. Линейый порядок': 'Л',
+#         'Конус. Шахматный порядок': 'Ш',
+#         'Полоса. Путь': 'П_П',
+#         'Полоса. Поле получения услуги': 'П_У',
+#     }
+#     if request.method == "POST":
+#         method_fixing = request.form['method_fixing']
+#         # GOTO: Сделать выбор метода крепления
+#         if method_fixing == 'Приклеивание':
+#             pass
+#         elif method_fixing == 'Сверление':
+#             pass
+#         else:
+#             return 404
+#         type_input = {
+#
+#         }
+#         pass
+#     return render_template('select_type.html')
 
 
 if __name__ == '__main__':
