@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="main-conten">
+	<div class="container">
+		<div class="row">
+			{% for template in templates %}
+
+			<div class="col-lg-4 col-sm-6 mb-3 ">
+				<div class="product-card text-white">
+					<div class="product-thumb">
+						<a><img src="{{ template['png']['path'] }}" alt="{{ template['name'] }}"></a>
+					</div>
+					<div class="product-details">
+						<h4>{{ template['name'] }}</h4>
+						<p>
+							{{ template['description'] }}
+						</p>
+						
+						<div class="product-buttom-details d-flex justify-content-between">
+							<button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modal{{template['id']}}">
+								Раскрыть
+							</button>
+						</div>
+						
+					</div>
+				</div>	
+			</div>
+
+			
+
+			<div class="modal fade" id="modal{{template['id']}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="exampleModalLabel">Конфигурация</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+
+						<!-- ....... больше информации ....... -->
+
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+							<button type="button" class="btn btn-primary">Save changes</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			
+
+			{% endfor %}
+
+		</div>
+	</div>
+</section>
+{% endblock %}
+

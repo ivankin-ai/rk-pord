@@ -1,15 +1,31 @@
 html {
 	font-size: 16px;
+	height: 100%;
 }
 
 body {
 	font-family: 'Roboto', sans-serif;
 	font-size: 16px;
-	fw\400;
+	font-weight: 400;	;
 	color: #000;
-	background-color: #fff;
+	background: linear-gradient(45deg, #304352,#8f8f8f);
 	min-width: 320px;
+	height: 100%;
+	animation: gradient 15s ease infinite;
+	background-size: 300% 300%;
 
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0, 50%;
+	}
+	50% {
+		background-position: 100%, 50%;
+	}
+	100% {
+		background-position: 0, 50%;
+	}
 }
 
 img {
@@ -30,8 +46,15 @@ a:hover {
 }
 
 /* Header */
+.navbar {
+
+	background: linear-gradient(-45deg, rgba(48, 67, 82, 20%), rgba(215, 210, 204, 20%));
+	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.2);
+
+}
+
 .navbar-light .navbar-nav .nav-link {
-	color: #111;
+	color: #ddd;
 	font-weight: 500;
 	text-transform: uppercase;
 }
@@ -57,3 +80,80 @@ a:hover {
 
 /* Header */
 
+/*Product-card*/
+
+.product-card {
+	box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.06);
+	transition: all .5s;
+	background: rgba(200,200,200, 5%);
+	border-radius: 10px;
+	min-height: 500px;
+
+}
+
+.product-card:hover {
+	box-shadow: 0 14px 30px -15px rgba(0, 0, 0, 0.75);
+	background: rgba(200,200,200, 20%);
+}
+
+.product-thumb a {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 300px;
+	padding: 20px;
+}
+
+.product-thumb img {
+	max-width: 100%;
+	max-height: 100%;
+
+}
+
+.product-details {
+	padding: 20px;
+}
+
+.product-details h4 a {
+	font-weight: 500;
+	display: block;
+	height: 60px;
+	overflow: hidden;
+	text-decoration: none;
+
+}
+
+.product-details p {
+	font-size: 15px;
+	margin-bottom: 20px;
+	color: #ccc;
+	height: 44px;
+	overflow: hidden;
+}
+
+.product-bottom-details {
+	overflow: hidden;
+	border-top: 1px solid #eee;
+	padding-top: 20px;
+}
+
+.product-price {
+	font-size: 18px;
+	color: #ee6e73;
+	font-weight: 600; 
+}
+
+.product-price small {
+	color: #ccc;
+	font-weight: 400;
+	text-decoration: line-through;
+	margin-right: 5px;
+}
+
+.product-links a {
+	font-size: 20px;
+	margin-left: 5px;
+}
+
+
+/*Product-card*/
